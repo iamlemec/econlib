@@ -1,23 +1,20 @@
-# pure transition
-
-import json
 import numpy as np
-import vector_tools as vt
+import pytoml as toml
 from collections import OrderedDict
 import scipy.optimize as opt
 
 ##
-## dictionary functions
+## helper functions
 ##
 
-def load_json(fname):
-    return json.load(open(fname), object_pairs_hook=OrderedDict)
+def load_toml(fname):
+    return toml.load(open(fname), object_pairs_hook=OrderedDict)
 
-def save_json(d, fname):
-    json.dump(d, open(fname, 'w+'), indent=4)
+def save_toml(d, fname):
+    toml.dump(d, open(fname, 'w+'), indent=4)
 
 def file_or_dict(fod):
-    return vt.Bundle(load_json(fod)) if type(fod) is str else fod
+    return load_toml(fod) if type(fod) is str else fod
 
 def dict_to_vec(d):
     return np.array([x for x in d.values()])
@@ -26,7 +23,7 @@ def vec_to_dict(vec, names):
     return {k: v for k, v in zip(names, vec)}
 
 ##
-## main economy
+## model
 ##
 
 class Model:
@@ -41,16 +38,20 @@ class Model:
             m.load_policy(pol)
 
     def load_algpar(m, alg):
-        m.alg = vt.Bundle(file_or_dict(alg))
+        m.alg = file_or_dict(alg)
+        m.__dict__.update(m.alg)
 
     def load_params(m, par):
-        m.par = vt.Bundle(file_or_dict(par))
+        m.par = file_or_dict(par)
+        m.__dict__.update(m.par)
 
     def load_eqvars(m, var):
-        m.var = vt.Bundle(file_or_dict(var))
+        m.var = file_or_dict(var)
+        m.__dict__.update(m.var)
 
     def load_policy(m, pol):
-        m.pol = vt.Bundle(file_or_dict(pol))
+        m.pol = file_or_dict(pol)
+        m.__dict__.update(m.pol)
 
     def eqfunc(m):
         pass
